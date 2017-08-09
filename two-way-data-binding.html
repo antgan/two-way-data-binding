@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Two-way data-binding</title>
+	<script src="jquery-3.2.1.min.js"></script>
+	<script src="VModel.js"></script>
+</head>
+<body>
+	<hr>
+	<h2>User List</h2>
+	<div>
+		<table>
+			<thead>
+				<th>ID</th>
+				<th>Username</th>
+				<th>Password</th>
+				<th>Sex</th>
+				<th>marry</th>
+				<th>Hobby</th>
+				<th>Birth</th>
+				<th>Operation</th>
+			</thead>
+			<tbody id="renderTarget">
+				<tr id="myTemplate">
+					<td>{{id}}</td>
+					<td>{{username}}</td>
+					<td>{{password}}</td>
+					<td>{{sex}}</td>
+					<td>{{marry}}</td>
+					<td>{{hobby}}</td>
+					<td>{{birth}}</td>
+					<td>
+						<button class="btn-update">update</button>
+						<button>delete</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	
+	<hr>
+	<h2>Update Area</h2>
+	<div>
+		<table>
+			<tbody id="update-body">
+				<tr>
+					<td><input type="text" name="id" v-model="id" disabled="disabled"></td>
+					<td><input type="text" name="username" v-model="username"></td>
+					<td><input type="text" name="password" v-model="password"></td>
+					<td>
+						男：<input type="radio" name="sex" value="1" v-model="sex">
+						女：<input type="radio" name="sex" value="0" v-model="sex">
+					</td>
+					<td>
+						<select name="marry" v-model="marry">
+							<option value="0">未婚</option>
+							<option value="1">已婚</option>
+						</select>
+					</td>
+					<td>
+						篮球<input type="checkbox" name="hobby" value="basketball" v-model="hobby">
+						足球<input type="checkbox" name="hobby" value="football" v-model="hobby">
+					</td>
+					<td>
+						<input type="date" name="birth" v-model="birth">
+					</td>
+				</tr>
+				<tr>
+					<td>{{id}}</td>
+					<td>{{username}}</td>
+					<td>{{password}}</td>
+					<td>{{sex}}</td>
+					<td>{{marry}}</td>
+					<td>{{hobby}}</td>
+					<td>{{birth}}</td>
+				</tr>
+			</tbody>
+			<tfoot>
+				<button id="update">确定</button>
+			</tfoot>
+		</table>
+	</div>
+
+</body>
+<script type="text/javascript">
+	var data = [{
+				id : "1",
+				username : 'Tom',
+				password : '123',
+				sex : "1",
+				marry: "1",
+				hobby : ["football"],
+				birth : "2017-08-20"
+			},
+			{
+				id : "2",
+				username : 'Abel',
+				password : '123',
+				sex : "0",
+				marry: "0",
+				hobby : ["basketball"],
+				birth : "2017-08-15"
+			}];
+
+	var cache = new Map();
+	//克隆副本
+	var updateModel;
+	window.onload=function(){
+		//初始化
+		data.forEach(function(item){
+			cache.set(item.id, v.render(item.id, item, "myTemplate", "renderTarget",function(){}));
+		});
+
+		//绑定更新事件
+		$("#update").click(function(){
+			if(updateModel!=null){
+				var vm = cache.get(updateModel.data.id);
+				for(var prop in vm.data){
+					vm.data[prop] = updateModel.data[prop];
+				}
+				$("#update-body").find("input").val("").removeAttr("checked");
+				updateModel = null;
+			}
+		});
+	
+		//绑定更新事件
+		$(".btn-update").click(function(){
+			if(updateModel!=null){
+				$("#update-body").find("input").removeAttr("checked");
+			}
+			var id = $(this).parent().parent().attr("id");
+			updateModel = v.update(cache.get(id).data, "update-body");
+		});
+
+	}
+</script>
+
+</html>
